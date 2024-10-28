@@ -42,12 +42,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(User user) {
 
-        String roleName = user.getRoles().stream()
-                .findFirst()
-                .map(role -> role.getRoleName().name())
-                .orElseThrow(() -> new IllegalStateException("User has no roles assigned"));
-
-        GrantedAuthority authority = new SimpleGrantedAuthority(roleName);
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getRoleName().name());
 
         return new UserDetailsImpl(
                 user.getId(),

@@ -18,9 +18,6 @@ import java.util.Set;
 @Table(name = "roles")
 public class Role extends BaseEntity{
 
-    @Column(name = "role_id", insertable = false, updatable = false)
-    private Long id;
-
     @ToString.Exclude
     @Enumerated(EnumType.STRING)
     @Column(length = 20, name = "role_name")

@@ -1,5 +1,6 @@
 package com.user.management.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,9 +28,6 @@ import java.util.Set;
                 @UniqueConstraint(columnNames = "email")
         })
 public class User extends BaseEntity {
-
-    @Column(name = "user_id", insertable = false, updatable = false)
-    private Long id;
 
     @NotBlank(message = "Username is mandatory")
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
@@ -63,24 +62,13 @@ public class User extends BaseEntity {
     private boolean isTwoFactorEnabled = false;
     private String signUpMethod;
 
-//
-//    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
-//    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
-//    @JsonBackReference
-//    @ToString.Exclude
-//    private Role role;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "role_id" )
+    @JsonBackReference
+    @ToString.Exclude
+    private Role role;
 
-    // Relationships
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Keep> keeps = new HashSet<>();
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -130,7 +118,7 @@ public class User extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
-        return id != null && id.equals(((User) o).getId());
+        return getId() != null && getId().equals(((User) o).getId());
     }
 
     @Override
