@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
 
@@ -32,19 +33,25 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf ->
+                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/auth/public/**")
+        );
+        //        http.csrf(AbstractHttpConfigurer::disable); // To disable csrf
 //        http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
-        http.authorizeHttpRequests((requests) -> requests
+        http.authorizeHttpRequests((requests)
+                -> requests
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/api/csrf-token").permitAll()
+                //.requestMatchers("/public/**").permitAll()
                 .anyRequest().authenticated());
 /*      .requestMatchers("/public/**").permitAll()
         .requestMatchers("/admin").denyAll()
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
  */
-        http.csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
-        //http.formLogin(withDefaults());
+        http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
