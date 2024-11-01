@@ -2,15 +2,13 @@ package com.user.management.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Data
-@Setter
-@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Keep extends BaseEntity {
 

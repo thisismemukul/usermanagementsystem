@@ -1,21 +1,21 @@
 package com.user.management.services;
 
 import com.user.management.models.Keep;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface IKeepService {
 
-    Mono<Keep> createKeepForUser(String content, String username);
+    Keep createKeepForUser(String content, String username);
 
-    Mono<Keep> updateKeepForUser(Long keepId, String content, String username);
+    Keep updateKeepForUser(Long keepId, String content, String username);
 
-    Mono<Void> deleteKeepForUser(Long keepId, String username);
+    void deleteKeepForUser(Long keepId, String username);
 
-    Flux<Keep> getAllKeepForUser(String username);
+    List<Keep> getAllKeepForUser(String username);
 
-    Flux<Keep> getAllKeeps();
+    List<Keep> getAllKeeps();
 
-    Flux<Keep> getKeepByKeepId(Long keepId);
+    Optional<Keep> getKeepByKeepId(Long keepId);
 }
-
