@@ -16,7 +16,7 @@ public class RequestValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String header = request.getHeader("X-Valid-Password-Bol");
-        if (header == null || !header.equals("true")) {
+        if (header == null || !header.equals("myPass")) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request");
             return;
         }
