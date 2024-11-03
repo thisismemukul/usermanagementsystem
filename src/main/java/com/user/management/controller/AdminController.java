@@ -2,7 +2,7 @@ package com.user.management.controller;
 
 import com.user.management.models.User;
 import com.user.management.response.ApiResponse;
-import com.user.management.services.IUserService;
+import com.user.management.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,10 +18,10 @@ import static com.user.management.util.UserManagementUtils.handleResponse;
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
-    private final IUserService IUserService;
+    private final UserService userService;
 
-    public AdminController(IUserService IUserService) {
-        this.IUserService = IUserService;
+    public AdminController(UserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -31,7 +31,7 @@ public class AdminController {
      */
     @GetMapping(USERS)
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
-        return handleResponse(IUserService::getAllUsers,
+        return handleResponse(userService::getAllUsers,
                 "Fetched Users successfully",
                 HttpStatus.OK);
     }
@@ -47,7 +47,7 @@ public class AdminController {
     public ResponseEntity<ApiResponse<String>> updateUserRole(@RequestParam Long userId,
                                                               @RequestParam String roleName) {
         return handleResponse(() -> {
-            IUserService.updateUserRole(userId, roleName);
+            userService.updateUserRole(userId, roleName);
             return null;
         }, "Keep deleted successfully", HttpStatus.OK);
     }
@@ -60,7 +60,7 @@ public class AdminController {
      */
     @GetMapping(USER + ID)
     public ResponseEntity<ApiResponse<List<User>>> getUser(@PathVariable Long id) {
-        return handleResponse(IUserService::getAllUsers,
+        return handleResponse(userService::getAllUsers,
                 "Fetched Users successfully",
                 HttpStatus.OK);
     }

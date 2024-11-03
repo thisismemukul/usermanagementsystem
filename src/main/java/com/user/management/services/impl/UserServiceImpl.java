@@ -6,7 +6,7 @@ import com.user.management.models.User;
 import com.user.management.repositories.RoleRepository;
 import com.user.management.repositories.UserRepository;
 import com.user.management.request.dto.UserDTO;
-import com.user.management.services.IUserService;
+import com.user.management.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
@@ -15,19 +15,20 @@ import org.springframework.util.ObjectUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static com.user.management.enums.ResponseCode.*;
+import static com.user.management.enums.ResponseCode.INPUT_IS_INVALID;
+import static com.user.management.enums.ResponseCode.ROLE_NOT_FOUND;
 import static com.user.management.util.UserManagementUtils.createUserMgmtException;
 import static com.user.management.util.UserManagementUtils.createValidationException;
 
 @Service
 @Slf4j
-public class UserService implements IUserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
@@ -99,7 +100,7 @@ public class UserService implements IUserService {
         Optional<User> user = userRepository.findByUsername(username);
         return user.orElseThrow(() -> {
             log.error("Username {} not found", username);
-            return createUserMgmtException(USERNAME_NOT_FOUND);
+            return createUserMgmtException(ROLE_NOT_FOUND);
         });
     }
 }
