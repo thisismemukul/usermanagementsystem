@@ -6,7 +6,7 @@ import com.user.management.request.dto.UserDTO;
 
 import java.util.List;
 
-public interface UserService {
+public interface IUserService {
     void updateUserRole(Long userId, String roleName);
 
     List<User> getAllUsers();

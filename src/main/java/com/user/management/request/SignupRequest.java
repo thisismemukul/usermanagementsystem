@@ -7,9 +7,12 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.user.management.constants.Constants.PASSWORD_IS_EMPTY_MESSAGE;
+import static com.user.management.constants.Constants.USERNAME_IS_EMPTY_MESSAGE;
+
 @Data
 public class SignupRequest {
-    @NotBlank
+    @NotBlank(message = USERNAME_IS_EMPTY_MESSAGE)
     @Size(min = 3, max = 20)
     private String username;
 
@@ -22,7 +25,7 @@ public class SignupRequest {
     @Getter
     private Set<String> role;
 
-    @NotBlank
+    @NotBlank(message = PASSWORD_IS_EMPTY_MESSAGE)
     @Size(min = 6, max = 40)
     private String password;
 }

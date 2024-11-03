@@ -25,8 +25,11 @@ public class Constants {
     public static final String CONTENT_IS_EMPTY_MESSAGE = "Content cannot be null or empty.";
     public static final String CONTENT_IS_EMPTY_USER_MESSAGE = "Uh-oh! Looks like you forgot to say something. 🗣️";
 
-    public static final String MODEL_IS_INVALID_MESSAGE = "The specified model is not supported.";
-    public static final String MODEL_IS_INVALID_USER_MESSAGE = "Uh-oh! Looks like you forgot to specify either 'openai' or 'ollama' as the model. 🗣️";
+    public static final String USERNAME_IS_EMPTY_MESSAGE = "Username cannot be null or empty.";
+    public static final String USERNAME_IS_EMPTY_USER_MESSAGE = "Uh-oh! Looks like you forgot to tell your name. 🗣️";
+
+    public static final String PASSWORD_IS_EMPTY_MESSAGE = "Password cannot be null or empty.";
+    public static final String PASSWORD_IS_EMPTY_USER_MESSAGE = "Uh-oh! Looks like you forgot to enter your password. 🗣️";
 
     public static final String INPUT_IS_INVALID_MESSAGE = "Invalid Input: parameters are empty.";
     public static final String INPUT_IS_INVALID_USER_MESSAGE = "Uh-oh! Looks like you forgot what are the parameters. 👩‍🍳🔪";
@@ -37,8 +40,14 @@ public class Constants {
     public static final String USERNAME_NOT_FOUND_MESSAGE = "Username not found.";
     public static final String USERNAME_NOT_FOUND_USER_MESSAGE = "Whoops! That username is playing hide-and-seek. Maybe it’s gone incognito? 😎🔍";
 
-    public static final String EXERCISE_INPUT_IS_INVALID_MESSAGE = "Invalid Input: Exercise plan is not valid.";
-    public static final String EXERCISE_INPUT_IS_INVALID_USER_MESSAGE = "Hold up! It looks like your exercise plan has gone on vacation. Time to reel it back in! 🌴🥳";
+    public static final String USERNAME_ALREADY_TAKEN_MESSAGE = "Username is already taken!";
+    public static final String USERNAME_ALREADY_TAKEN_USER_MESSAGE = "Ahoy! That username is already in use by another pirate! Try a different treasure name! 🏴‍☠️";
+
+    public static final String EMAIL_ALREADY_TAKEN_MESSAGE = "Email is already in use!";
+    public static final String EMAIL_ALREADY_TAKEN_USER_MESSAGE = "That email has set sail! Looks like it’s already aboard another ship! ⛵️";
+
+    public static final String AUTHENTICATION_FAILED_MESSAGE = "Authentication failed due to invalid credentials.";
+    public static final String AUTHENTICATION_FAILED_USER_MESSAGE = "Oops! Looks like your username or password took a wrong turn. Let’s try that again! 🚀";
 
     //500
     public static final String NULL_POINTER_EXCEPTION_MESSAGE = "A null pointer exception occurred: ";
@@ -63,5 +72,9 @@ public class Constants {
     public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
     public static final String SERVICE_ERROR = "SERVICE_ERROR";
     public static final String TIMEOUT_ERROR = "TIMEOUT_ERROR";
+
+    //Roles
+    public static final String ADMIN = "admin";
+
 
 }

@@ -127,9 +127,7 @@ public class UserManagementUtils {
         if (ObjectUtils.isEmpty(content)) {
             throw createValidationException(CONTENT_IS_EMPTY);
         }
-        if (ObjectUtils.isEmpty(userDetails.getUsername())) {
-            throw createUserMgmtException(USER_DETAILS_MISSING);
-        }
+        validateUserDetails(userDetails);
     }
 
     /**
@@ -145,9 +143,7 @@ public class UserManagementUtils {
         if (ObjectUtils.isEmpty(noteId) || ObjectUtils.isEmpty(content)) {
             throw createValidationException(CONTENT_IS_EMPTY);
         }
-        if (ObjectUtils.isEmpty(userDetails.getUsername())) {
-            throw createUserMgmtException(USER_DETAILS_MISSING);
-        }
+        validateUserDetails(userDetails);
     }
 
     /**
@@ -162,8 +158,19 @@ public class UserManagementUtils {
         if (ObjectUtils.isEmpty(keepId)) {
             throw createValidationException(CONTENT_IS_EMPTY);
         }
+        validateUserDetails(userDetails);
+    }
+
+    /**
+     * Validates the presence of user details, throwing an exception if missing.
+     *
+     * @param userDetails The user details to validate.
+     * @exception UserMgmtException Thrown if user details are missing or invalid.
+     */
+    public static void validateUserDetails(UserDetails userDetails) {
         if (ObjectUtils.isEmpty(userDetails.getUsername())) {
             throw createUserMgmtException(USER_DETAILS_MISSING);
         }
     }
+
 }
