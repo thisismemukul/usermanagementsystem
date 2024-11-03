@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+import static com.user.management.constants.RESTUriConstants.API;
+import static com.user.management.constants.RESTUriConstants.CSRF_TOKEN;
 import static com.user.management.util.UserManagementUtils.errorResponse;
 import static com.user.management.util.UserManagementUtils.successResponse;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(API)
 public class CsrfController {
 
-    @GetMapping("/csrf-token")
+    @GetMapping(CSRF_TOKEN)
     public ResponseEntity<ApiResponse<CsrfToken>> csrfToken(HttpServletRequest request) {
         return Optional.ofNullable((CsrfToken) request.getAttribute(CsrfToken.class.getName()))
                 .map(csrfToken -> successResponse("CSRF token retrieved successfully", HttpStatus.OK, csrfToken))

@@ -4,17 +4,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+import static com.user.management.constants.Constants.USER_HEALTH_CHECK;
+import static com.user.management.constants.RESTUriConstants.HEALTH_CHECK;
+import static com.user.management.constants.RESTUriConstants.PUBLIC;
+
+@RestController(PUBLIC)
 public class HealthController {
-
-    @GetMapping("/public/health")
-    public ResponseEntity<String> healthController(){
-    return ResponseEntity.ok("Health OK");
-    }
-
-
-    @GetMapping("/hi")
-    public ResponseEntity<String> hi(){
-        return ResponseEntity.ok("ji OK");
+    @GetMapping(HEALTH_CHECK)
+    public ResponseEntity<String> healthController() {
+        return ResponseEntity.ok(USER_HEALTH_CHECK);
     }
 }

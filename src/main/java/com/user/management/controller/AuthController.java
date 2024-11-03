@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,8 +37,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.user.management.constants.RESTUriConstants.*;
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(API_AUTH)
 public class AuthController {
 
     private final JwtUtils jwtUtils;
@@ -68,7 +71,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/public/signin")
+    @PostMapping(PUBLIC+SIGN_IN)
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;
         try {
@@ -90,7 +93,7 @@ public class AuthController {
 
         // Collect roles from the UserDetails
         List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         // Prepare the response body, now including the JWT token directly in the body
@@ -101,7 +104,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/public/signup")
+    @PostMapping(PUBLIC+SIGN_UP)
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -148,12 +151,12 @@ public class AuthController {
     }
 
 
-    @GetMapping("/user")
+    @GetMapping(USER)
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
 
         List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         UserInfoResponse response = new UserInfoResponse(
@@ -172,7 +175,7 @@ public class AuthController {
 
         return ResponseEntity.ok().body(response);
     }
-    @GetMapping("/username")
+    @GetMapping(USERNAME)
     public String currentUserName(@AuthenticationPrincipal UserDetails userDetails) {
         return (userDetails != null) ? userDetails.getUsername() : "";
     }
