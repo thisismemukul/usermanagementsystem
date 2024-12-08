@@ -1,5 +1,6 @@
 package com.user.management.services.impl;
 
+import com.user.management.exceptions.UserMgmtException;
 import com.user.management.exceptions.ValidationException;
 import com.user.management.models.Keep;
 import com.user.management.repositories.KeepRepository;
@@ -29,6 +30,13 @@ public class KeepService implements IKeepService {
         this.keepRepository = keepRepository;
     }
 
+    /**
+     * Creates the notes for a particular user, throwing an appropriate exception if something went wrong.
+     *
+     * @param content      The content to first validate and then save.
+     * @param userDetails  The user details to first validate and then save.
+     * @exception ServiceException Thrown if failed to create note.
+     */
     @Override
     public Keep createKeepForUser(String content, UserDetails userDetails) throws ValidationException {
         validateContentAndUser(content, userDetails);
@@ -43,6 +51,14 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * Updates the notes for a particular user, throwing an appropriate exception if something went wrong.
+     *
+     * @param noteId      The noteId to first validate and to fetch existing note.
+     * @param content      The content to first validate and then save.
+     * @param userDetails  The user details to first validate and to fetch existing note.
+     * @exception ServiceException Thrown if failed to update note.
+     */
     @Override
     public Keep updateKeepForUser(Long noteId, String content, UserDetails userDetails) {
         validateNoteIdContentAndUser(noteId, content, userDetails);
@@ -58,6 +74,13 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * Delete the note for a particular user, throwing an appropriate exception if something went wrong.
+     *
+     * @param keepId      The keepId to first validate and to fetch existing note.
+     * @param userDetails  The user details to first validate and to fetch existing note.
+     * @exception ServiceException Thrown if failed to delete note.
+     */
     @Override
     public void deleteKeepForUser(Long keepId, UserDetails userDetails) {
         validateKeepIdAndUser(keepId, userDetails);
@@ -71,6 +94,13 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * To fetch all the notes for a particular user, throwing an appropriate exception if something went wrong.
+     *
+     * @param userDetails  The user details to first validate and to fetch existing note.
+     * @exception UserMgmtException Thrown if unable to extract user details.
+     * @exception ServiceException Thrown if failed to retrieve notes for user.
+     */
     @Override
     public List<Keep> getAllKeepForUser(UserDetails userDetails) {
         if (ObjectUtils.isEmpty(userDetails.getUsername())) {
@@ -88,6 +118,11 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * To fetch all the notes from database, throwing an appropriate exception if something went wrong.
+     *
+     * @exception ServiceException Thrown if failed to all notes.
+     */
     @Override
     public List<Keep> getAllKeeps() {
         try {
@@ -100,6 +135,13 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * To fetch all the note by note ID, throwing an appropriate exception if something went wrong.
+     *
+     * @param keepId      The keepId to first validate and to fetch existing note.
+     * @exception ValidationException Thrown if content is empty.
+     * @exception ServiceException Thrown if failed to retrieve notes for user.
+     */
     @Override
     public Optional<Keep> getKeepByKeepId(Long keepId) {
         if (ObjectUtils.isEmpty(keepId)) {
@@ -121,6 +163,13 @@ public class KeepService implements IKeepService {
         }
     }
 
+    /**
+     * To fetch all the existing note by note ID, throwing an appropriate exception if something went wrong.
+     *
+     * @param keepId      The keepId to first validate and to fetch existing note.
+     * @exception UserMgmtException Thrown if unable to extract user details.
+     * @exception ServiceException Thrown if failed to retrieve notes for user.
+     */
     private Keep getExistingKeep(Long keepId, UserDetails userDetails) {
         validateKeepIdAndUser(keepId, userDetails);
 
