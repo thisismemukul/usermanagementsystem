@@ -17,6 +17,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.user.management.enums.ResponseCode.AUTHENTICATION_FAILED;
+import static com.user.management.util.UserManagementUtils.createUserMgmtException;
+
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -49,7 +52,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: ", e);
+            logger.error("Error: Cannot set user authentication {}", e.getMessage(), e);
+            throw createUserMgmtException(AUTHENTICATION_FAILED);
         }
 
         filterChain.doFilter(request, response);

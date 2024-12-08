@@ -16,7 +16,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,14 +26,11 @@ import java.time.LocalDate;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(
-        prePostEnabled = true,
+@EnableMethodSecurity(prePostEnabled = true,
         securedEnabled = true,
-        jsr250Enabled = true,
-        proxyTargetClass = true)
+        jsr250Enabled = true)
 public class SecurityConfig {
 
     @Autowired
@@ -48,32 +44,43 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf ->
-                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/auth/public/**")
-        );
-//        http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests((requests)
-                        -> requests
+        http.cors(withDefaults())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/auth/public/**"))
+                .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/csrf-token").permitAll()
                         .requestMatchers("/api/auth/public/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-                        .anyRequest().authenticated());
-//                .oauth2Login(oauth2 -> {
-//                    oauth2.successHandler(oAuth2LoginSuccessHandler);
-//                }
-//                );
-        http.exceptionHandling(exception
-                -> exception.authenticationEntryPoint(unauthorizedHandler));
-        http.addFilterBefore(authenticationJwtTokenFilter(),
-                UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
-        http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
+                        .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(unauthorizedHandler))
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class)
+                .formLogin(withDefaults())
+                .httpBasic(withDefaults());
+
         return http.build();
     }
+
+    /**
+     * Uncomment this if you don't want to use WebConfig.java
+     */
+
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowCredentials(true);
+//        config.addAllowedOrigin("http://localhost:3000"); // Front-end origin
+//        config.addAllowedHeader("*"); // Allow all headers
+//        config.addAllowedMethod("*"); // Allow all HTTP methods
+//        config.addExposedHeader("X-XSRF-TOKEN"); // Expose CSRF token header
+//        source.registerCorsConfiguration("/**", config); // Apply CORS to all routes
+//        return new CorsFilter(source);
+//    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -84,7 +91,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository, UserRepository userRepository,
@@ -127,26 +133,4 @@ public class SecurityConfig {
             }
         };
     }
-//    @Bean
-//    public UserDetailsService userDetailsService(DataSource dataSource) {
-//        JdbcUserDetailsManager manager =
-//                new JdbcUserDetailsManager(dataSource);
-//        if (!manager.userExists("mukul")) {
-//            manager.createUser(
-//                    User.withUsername("mukul")
-//                            .password("{noop}password1")
-//                            .roles("USER")
-//                            .build()
-//            );
-//        }
-//        if (!manager.userExists("admin")) {
-//            manager.createUser(
-//                    User.withUsername("admin")
-//                            .password("{noop}adminPass")
-//                            .roles("ADMIN")
-//                            .build()
-//            );
-//        }
-//        return manager;
-//    }
 }
