@@ -1,6 +1,8 @@
 package com.user.management.services.impl;
 
 import com.user.management.enums.AppRole;
+import com.user.management.exceptions.UserMgmtException;
+import com.user.management.exceptions.ValidationException;
 import com.user.management.models.Role;
 import com.user.management.models.User;
 import com.user.management.repositories.RoleRepository;
@@ -32,6 +34,14 @@ public class UserService implements IUserService {
         this.roleRepository = roleRepository;
     }
 
+    /**
+     * Updates the role for a particular user, throwing an appropriate exception if something went wrong.
+     *
+     * @param userId      The userId to first validate and used to find user.
+     * @param roleName      The roleName to first validate and to find by role name.
+     * @exception ValidationException Thrown if failed to validate input.
+     * @exception ServiceException Thrown if failed to create note.
+     */
     @Override
     public void updateUserRole(Long userId, String roleName) {
         if (ObjectUtils.isEmpty(userId) || ObjectUtils.isEmpty(roleName)) {
@@ -51,6 +61,11 @@ public class UserService implements IUserService {
     }
 
 
+    /**
+     * To fetch all the users, throwing an appropriate exception if something went wrong.
+     *
+     * @exception ServiceException Thrown if failed to fetch users.
+     */
     @Override
     public List<User> getAllUsers() {
         try {
@@ -61,7 +76,11 @@ public class UserService implements IUserService {
         }
     }
 
-
+    /**
+     * To fetch the user by id, throwing an appropriate exception if something went wrong.
+     *
+     * @exception ServiceException Thrown if failed to fetch users.
+     */
     @Override
     public UserDTO getUserById(Long id) {
         try {
@@ -73,6 +92,9 @@ public class UserService implements IUserService {
         }
     }
 
+    /**
+     * To convertToDto from User to UserDTO.
+     */
     private UserDTO convertToDto(User user) {
         return UserDTO.builder()
                 .userId(user.getId())
@@ -94,6 +116,12 @@ public class UserService implements IUserService {
                 .build();
     }
 
+    /**
+     * Get the user by username, throwing an appropriate exception if something went wrong.
+     *
+     * @param username      The username to first validate and used to find user.
+     * @exception UserMgmtException Thrown if username not found.
+     */
     @Override
     public User findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);

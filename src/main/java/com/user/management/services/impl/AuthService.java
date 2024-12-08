@@ -1,6 +1,8 @@
 package com.user.management.services.impl;
 
 import com.user.management.enums.AppRole;
+import com.user.management.exceptions.UserMgmtException;
+import com.user.management.exceptions.ValidationException;
 import com.user.management.models.Role;
 import com.user.management.models.User;
 import com.user.management.repositories.RoleRepository;
@@ -14,6 +16,7 @@ import com.user.management.security.jwt.JwtUtils;
 import com.user.management.security.services.UserDetailsImpl;
 import com.user.management.services.IAuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,6 +63,17 @@ public class AuthService implements IAuthService {
         this.userService = userService;
     }
 
+    /**
+     * Authenticates a user and generates a JWT token if the credentials are valid.
+     * The method validates the input request, performs authentication,
+     * and retrieves the user's roles and a JWT token upon successful login.
+     * It also handles exceptions for input validation and authentication failures.
+     *
+     * @param loginRequest The login request containing username and password to authenticate.
+     * @return LoginResponse containing the authenticated username, roles, and JWT token.
+     * @throws ValidationException Thrown if the input validation fails (e.g., empty or invalid fields).
+     * @throws UserMgmtException Thrown if the authentication process fails.
+     */
     @Override
     public LoginResponse signIn(LoginRequest loginRequest) {
 
@@ -94,6 +108,19 @@ public class AuthService implements IAuthService {
             throw createUserMgmtException(AUTHENTICATION_FAILED);
         }
     }
+
+    /**
+     * Registers a new user account with the provided signup details.
+     * The method validates the input request, checks for username and email availability,
+     * assigns appropriate roles, and saves the new user to the database.
+     * If any validation or persistence step fails, an appropriate exception is thrown.
+     *
+     * @param signupRequest The request containing username, email, password, and role information for the new user.
+     * @return SignupResponse containing the newly created user ID, username, and assigned role.
+     * @throws ValidationException Thrown if the input validation fails (e.g., empty or invalid fields).
+     * @throws UserMgmtException Thrown if the username or email is already in use, or the role is not found.
+     * @throws RuntimeException Thrown for any unexpected error during the signup process.
+     */
 
     @Override
     public SignupResponse signUp(SignupRequest signupRequest) {
@@ -157,6 +184,16 @@ public class AuthService implements IAuthService {
         }
     }
 
+    /**
+     * Retrieves detailed information about an authenticated user.
+     * The method validates the user details object, fetches the user record from the database,
+     * and returns a response containing user attributes and roles.
+     *
+     * @param userDetails The authenticated user details object to validate and use for fetching user information.
+     * @return UserInfoResponse containing the user's details, account status, and roles.
+     * @throws ValidationException Thrown if the user details object is invalid.
+     * @throws RuntimeException Thrown for any unexpected error during the retrieval process.
+     */
     @Override
     public UserInfoResponse getUserDetails(UserDetails userDetails) {
         validateUserDetails(userDetails);
