@@ -83,6 +83,10 @@ public class AuthService implements IAuthService {
             throw createValidationException(INPUT_IS_INVALID); //TODO: either username and pass are invalid (check for password length etc ) in @validate annotation
         }
         Authentication authentication;
+        /*
+        Authentication Object is a more comprehensive representation of
+        the user's authentication information
+         */
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -93,6 +97,10 @@ public class AuthService implements IAuthService {
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            /*
+            Principal represents the currently logged-in user. Your user details
+            (like your username or email) become your Principal
+             */
             log.info("Validating userDetails");
             validateUserDetails(userDetails);
             String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);

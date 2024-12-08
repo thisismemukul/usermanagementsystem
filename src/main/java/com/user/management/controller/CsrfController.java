@@ -1,6 +1,6 @@
 package com.user.management.controller;
 
-import com.user.management.response.ApiResponse;
+import  com.user.management.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +20,16 @@ import static com.user.management.util.UserManagementUtils.successResponse;
 @RequestMapping(API)
 public class CsrfController {
 
+    /**
+     * Retrieves the CSRF token for the current session.
+     * The method fetches the CSRF token from the HTTP request attributes and returns it in the response.
+     * If the CSRF token is not found, an error response is returned.
+     *
+     * @param request The HTTP request containing the CSRF token as an attribute.
+     * @return ResponseEntity containing an ApiResponse with the CSRF token and a success message if found,
+     *         or an error response if the token is not available.
+     * @throws RuntimeException Thrown for any unexpected error during the retrieval process.
+     */
     @GetMapping(CSRF_TOKEN)
     public ResponseEntity<ApiResponse<CsrfToken>> csrfToken(HttpServletRequest request) {
         return Optional.ofNullable((CsrfToken) request.getAttribute(CsrfToken.class.getName()))

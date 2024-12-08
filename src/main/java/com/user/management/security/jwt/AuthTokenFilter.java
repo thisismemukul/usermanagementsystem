@@ -35,20 +35,23 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         logger.debug("AuthTokenFilter called for URI: {}", request.getRequestURI());
         try {
+            // Extract JWT token from the request header
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                // Get username from the token
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
+                // Load user details from the database
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+                // Create an authentication object with user details and roles
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails,
-                                null,
-                                userDetails.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
                 logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
 
+                // Set authentication details and store in SecurityContext
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
@@ -56,10 +59,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throw createUserMgmtException(AUTHENTICATION_FAILED);
         }
 
+        // Proceed to the next filter in the chain
         filterChain.doFilter(request, response);
     }
 
     private String parseJwt(HttpServletRequest request) {
+        // Extract JWT token from the Authorization header
         String jwt = jwtUtils.getJwtFromHeader(request);
         logger.debug("AuthTokenFilter.java: {}", jwt);
         return jwt;
