@@ -25,9 +25,11 @@ import static com.user.management.util.UserManagementUtils.*;
 public class KeepService implements IKeepService {
 
     private final KeepRepository keepRepository;
+    private final AuditLogService auditLogService;
 
-    public KeepService(KeepRepository keepRepository) {
+    public KeepService(KeepRepository keepRepository, AuditLogService auditLogService) {
         this.keepRepository = keepRepository;
+        this.auditLogService = auditLogService;
     }
 
     /**
@@ -44,6 +46,7 @@ public class KeepService implements IKeepService {
             String username = userDetails.getUsername();
             Keep savedKeep = keepRepository.save(new Keep(content, username));
             log.info("Note created successfully with ID: {}", savedKeep.getId());
+            auditLogService.logKeepCreation(username, savedKeep);
             return savedKeep;
         } catch (Exception e) {
             log.error("Error occurred while creating note: {}", e.getMessage(), e);
@@ -67,6 +70,7 @@ public class KeepService implements IKeepService {
             existingKeep.setContent(content);
             Keep updatedKeep = keepRepository.save(existingKeep);
             log.info("Note updated successfully with ID: {}", updatedKeep.getId());
+            auditLogService.logKeepUpdate(userDetails.getUsername(), updatedKeep);
             return updatedKeep;
         } catch (Exception e) {
             log.error("Error occurred while updating note: {}", e.getMessage(), e);
@@ -86,6 +90,7 @@ public class KeepService implements IKeepService {
         validateKeepIdAndUser(keepId, userDetails);
         try {
             Keep existingKeep = getExistingKeep(keepId, userDetails);
+            auditLogService.logKeepDeletion(userDetails.getUsername(), keepId);
             keepRepository.delete(existingKeep);
             log.info("Note deleted successfully with ID: {}", keepId);
         } catch (Exception e) {
