@@ -7,9 +7,7 @@ import com.user.management.response.ApiResponse;
 import com.user.management.response.LoginResponse;
 import com.user.management.response.SignupResponse;
 import com.user.management.response.UserInfoResponse;
-import com.user.management.security.jwt.JwtUtils;
 import com.user.management.services.IAuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,14 +47,6 @@ public class AuthController {
                 HttpStatus.CREATED);
     }
 
-
-    @PostMapping(PUBLIC + LOGOUT)
-    public ResponseEntity<ApiResponse<String>> logoutUser(HttpServletRequest request, @AuthenticationPrincipal UserDetails userDetails) {
-        return handleResponse(() -> {
-            authService.logout(request,userDetails);
-            return "User logged out successfully";
-        }, "Logout success", HttpStatus.OK);
-    }
 
     @GetMapping(USER)
     public ResponseEntity<ApiResponse<UserInfoResponse>> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
