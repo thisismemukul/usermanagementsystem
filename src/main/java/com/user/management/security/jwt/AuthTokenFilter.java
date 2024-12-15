@@ -1,5 +1,6 @@
 package com.user.management.security.jwt;
 
+import com.user.management.security.TokenBlacklist;
 import com.user.management.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
+    @Autowired
+    private TokenBlacklist tokenBlacklist;
+
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Override
@@ -37,22 +41,30 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             // Extract JWT token from the request header
             String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                // Get username from the token
-                String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
-                // Load user details from the database
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            if (jwt != null) {
+                if (tokenBlacklist.isBlacklisted(jwt)) {
+                    logger.warn("Blocked request with blacklisted token: {}", jwt);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is invalid or expired");
+                    return;
+                }
+                if (jwtUtils.validateJwtToken(jwt)) {
+                    // Get username from the token
+                    String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
-                // Create an authentication object with user details and roles
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    // Load user details from the database
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
+                    // Create an authentication object with user details and roles
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                // Set authentication details and store in SecurityContext
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
+
+                    // Set authentication details and store in SecurityContext
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception e) {
             logger.error("Error: Cannot set user authentication {}", e.getMessage(), e);

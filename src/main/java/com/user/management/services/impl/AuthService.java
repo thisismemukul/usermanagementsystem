@@ -15,8 +15,8 @@ import com.user.management.response.UserInfoResponse;
 import com.user.management.security.jwt.JwtUtils;
 import com.user.management.security.services.UserDetailsImpl;
 import com.user.management.services.IAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -189,6 +189,31 @@ public class AuthService implements IAuthService {
         } catch (RuntimeException e) {
             log.error("Error: while sign up {}", e.getMessage(), e);
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Logs out the user by invalidating their JWT token or removing their session.
+     * This ensures the token cannot be used again for future requests.
+     *
+     * @param userDetails The authenticated user details.
+     */
+    @Override
+    public void logout(HttpServletRequest request, UserDetails userDetails) {
+        validateUserDetails(userDetails);
+        try {
+            String token = jwtUtils.getJwtFromHeader(request);
+            if (token != null) {
+                jwtUtils.invalidateToken(token);
+//            String username = userDetails.getUsername();
+//            jwtUtils.invalidateToken(username);
+
+                SecurityContextHolder.clearContext();
+                log.info("Successfully logged out user: {}", userDetails.getUsername());
+            }
+        } catch (Exception e) {
+            log.error("Error occurred during logout: {}", e.getMessage(), e);
+            throw createUserMgmtException(SERVICE_EXCEPTION);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.user.management.security.jwt;
 
+import com.user.management.security.TokenBlacklist;
 import com.user.management.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -26,11 +27,17 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
+    private final TokenBlacklist tokenBlacklist;
+
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
 
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
+
+    public JwtUtils(TokenBlacklist tokenBlacklist) {
+        this.tokenBlacklist = tokenBlacklist;
+    }
 
     /**
      * Extracts the JWT token from the "Authorization" header in an HTTP request.
@@ -100,6 +107,9 @@ public class JwtUtils {
      */
     public boolean validateJwtToken(String authToken) {
         try {
+            if (tokenBlacklist.isBlacklisted(authToken)) {
+                throw new JwtException("Token has been invalidated");
+            }
             logger.debug("Validating JWT token");
             Jwts.parser()
                     .verifyWith((SecretKey) key())
@@ -116,5 +126,22 @@ public class JwtUtils {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+    public void invalidateToken(String authToken) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith((SecretKey) key())
+                    .build()
+                    .parseSignedClaims(authToken)
+                    .getPayload();
+            Date expiration = claims.getExpiration();
+            if (expiration != null) {
+                tokenBlacklist.add(authToken, expiration.getTime());
+                logger.info("Token invalidated successfully: {}", authToken);
+            }
+        } catch (JwtException e) {
+            logger.error("Failed to invalidate token: {}", e.getMessage());
+            throw new RuntimeException("Token invalidation failed.");
+        }
     }
 }

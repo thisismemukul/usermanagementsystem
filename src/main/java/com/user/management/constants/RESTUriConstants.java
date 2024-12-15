@@ -10,6 +10,7 @@ public class RESTUriConstants {
     public static final String PUBLIC = "/public";
     public static final String SIGN_IN = "/signin";
     public static final String SIGN_UP = "/signup";
+    public static final String LOGOUT = "/logout";
     public static final String HEALTH_CHECK = "/health";
     public static final String USER = "/user";
     public static final String USERS = "/users";
