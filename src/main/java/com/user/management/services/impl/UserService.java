@@ -283,7 +283,7 @@ public class UserService implements IUserService {
         try {
             User user = userRepository.findById(userId).orElseThrow(()
                     -> createUserMgmtException(USERNAME_NOT_FOUND));
-            user.setPassword(passwordEncoder.encode(password));
+            user.setPassword(password);
             userRepository.save(user);
         } catch (RuntimeException e) {
             log.error("Error occurred while updating password: {}", e.getMessage(), e);
@@ -352,4 +352,52 @@ public class UserService implements IUserService {
         }
     }
 
+    /**
+     * Resets the password for a user based on a valid password reset token.
+     * Validates the token, updates the user's password, and marks the token as used.
+     *
+     * @param token       The password reset token provided by the user.
+     * @param newPassword The new password to be set for the user.
+     * @throws ServiceException If the token is invalid, expired, already used, or does not reference a valid user.
+     */
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        try {
+            PasswordReset passwordResetToken = passwordResetRepository.findByToken(token)
+                    .orElseThrow(() -> new ServiceException("Invalid or missing password reset token."));
+
+            if (passwordResetToken.isUsed()) {
+                log.warn("Attempt to use an already used password reset token: {}", token);
+                throw new ServiceException("This password reset token has already been used. Please request a new one.");
+            }
+
+            if (passwordResetToken.getExpiryDate().isBefore(Instant.now())) {
+                log.warn("Attempt to use an expired password reset token: {}", token);
+                throw new ServiceException("This password reset token has expired. Please request a new one.");
+            }
+
+            User user = passwordResetToken.getUser();
+
+            if (ObjectUtils.isEmpty(user)) {
+                log.error("Password reset token {} does not reference a valid user.", token);
+                throw createUserMgmtException(USER_NOT_FOUND);
+            }
+
+            user.setPassword(newPassword);
+            userRepository.save(user);
+            log.info("Password successfully reset for user: {}", user.getEmail());
+
+            passwordResetToken.setUsed(true);
+            passwordResetRepository.save(passwordResetToken);
+            log.info("Password reset token marked as used for user: {}", user.getEmail());
+        } catch (ServiceException e) {
+            log.error("ServiceException while resetting password: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error occurred while resetting password for token: {}", token, e);
+            throw new ServiceException("An unexpected error occurred while resetting the password. Please try again.");
+        }
     }
+
+
+}

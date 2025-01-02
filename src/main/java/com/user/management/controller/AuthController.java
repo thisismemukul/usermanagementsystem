@@ -74,4 +74,15 @@ public class AuthController {
                 "Reset Email Sent Successfully",
                 HttpStatus.OK);
     }
+
+    @PostMapping(PUBLIC+ RESET_PASSWORD)
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String token,
+                                                             @RequestParam String newPassword) {
+        return handleResponse(() -> {
+                    userService.resetPassword(token,newPassword);
+                    return null;
+                },
+                "Password Reset Successfully",
+                HttpStatus.OK);
+    }
 }

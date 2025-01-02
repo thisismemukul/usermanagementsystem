@@ -31,4 +31,6 @@ public interface IUserService {
     Optional<User> findByEmail(String email);
 
     void generatePasswordResetToken(String email);
+
+    void resetPassword(String token, String newPassword);
 }
