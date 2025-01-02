@@ -29,4 +29,6 @@ public interface IUserService {
     void updatePassword(Long userId, String password);
 
     Optional<User> findByEmail(String email);
+
+    void generatePasswordResetToken(String email);
 }

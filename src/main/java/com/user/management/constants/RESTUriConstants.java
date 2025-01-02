@@ -27,6 +27,8 @@ public class RESTUriConstants {
     public static final String ENABLED = "/enabled";
     public static final String CREDENTIALS = "/credentials";
     public static final String PASSWORD = "/password";
+    public static final String FORGOT_PASSWORD = "/forgot-password";
+    public static final String RESET_PASSWORD = "/reset-password";
 
     public static final String STATUS = "/status";
 

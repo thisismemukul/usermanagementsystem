@@ -3,21 +3,30 @@ package com.user.management.services.impl;
 import com.user.management.enums.AppRole;
 import com.user.management.exceptions.UserMgmtException;
 import com.user.management.exceptions.ValidationException;
+import com.user.management.models.PasswordReset;
 import com.user.management.models.Role;
 import com.user.management.models.User;
+import com.user.management.repositories.PasswordResetRepository;
 import com.user.management.repositories.RoleRepository;
 import com.user.management.repositories.UserRepository;
 import com.user.management.request.dto.UserDTO;
 import com.user.management.services.IUserService;
+import com.user.management.util.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import static com.user.management.constants.RESTUriConstants.RESET_PASSWORD;
 import static com.user.management.enums.ResponseCode.*;
 import static com.user.management.util.UserManagementUtils.createUserMgmtException;
 import static com.user.management.util.UserManagementUtils.createValidationException;
@@ -26,15 +35,25 @@ import static com.user.management.util.UserManagementUtils.createValidationExcep
 @Slf4j
 public class UserService implements IUserService {
 
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
 
+    private final PasswordResetRepository passwordResetRepository;
+
+    private final EmailService emailService;
+
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordResetRepository passwordResetRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordResetRepository = passwordResetRepository;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -288,4 +307,49 @@ public class UserService implements IUserService {
         }
     }
 
-}
+    /**
+     * Generates a password reset token for a user, validates the email, and persists the token in the database.
+     *
+     * @param email The email of the user for whom the password reset token will be generated.
+     * @throws ValidationException Thrown if the email is invalid or not provided.
+     * @throws ServiceException    Thrown if there is an issue generating or saving the password reset token.
+     */
+    @Override
+    public void generatePasswordResetToken(String email){
+        if (ObjectUtils.isEmpty(email)) {
+            log.error("Invalid input: Email is null or empty");
+            throw createValidationException(INPUT_IS_INVALID);
+        }
+
+        try {
+            User user = findByEmail(email).orElseThrow(() -> {
+                log.error("User not found for email: {}", email);
+                return createUserMgmtException(USER_NOT_FOUND);
+            });
+
+            String token = UUID.randomUUID().toString();
+            Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
+
+            PasswordReset passwordReset = PasswordReset.builder()
+                    .token(token)
+                    .expiryDate(expiryDate)
+//                    .used(false)
+                    .user(user)
+                    .build();
+
+            passwordResetRepository.save(passwordReset);
+
+            log.info("Password reset token generated and saved successfully for email: {}", email);
+
+            String resetUrl = frontendUrl+RESET_PASSWORD+"?token="+token;
+            emailService.sendEmail(user.getEmail(), "Password Reset Request", resetUrl);
+
+        } catch (RuntimeException e) {
+            log.error("Error occurred while generating password reset token for email {}: {}", email, e.getMessage(), e);
+            throw new ServiceException("Failed to generate password reset token.", e);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    }
