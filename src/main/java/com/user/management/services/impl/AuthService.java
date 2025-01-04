@@ -170,13 +170,7 @@ public class AuthService implements IAuthService {
                             .orElseThrow(() -> createUserMgmtException(ROLE_NOT_FOUND));
                 }
 
-                user.setAccountNonLocked(true);
-                user.setAccountNonExpired(true);
-                user.setCredentialsNonExpired(true);
-                user.setEnabled(true);
-                user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-                user.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                user.setTwoFactorEnabled(false);
+                makeUser(user);
                 user.setSignUpMethod("email");
             }
             user.setRole(role);

@@ -400,4 +400,14 @@ public class UserService implements IUserService {
     }
 
 
+    @Override
+    public void registerUser(User newUser) {
+        if (!ObjectUtils.isEmpty(newUser.getSignUpMethod())){
+            if (!"email".equalsIgnoreCase(newUser.getSignUpMethod())){
+                newUser.setPassword(newUser.getSignUpMethod().concat(newUser.getUsername()));
+            }
+        }
+        userRepository.save(newUser);
+    }
+
 }

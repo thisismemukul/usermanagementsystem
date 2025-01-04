@@ -1,5 +1,6 @@
 package com.user.management.security;
 
+import com.user.management.config.OAuth2LoginSuccessHandler;
 import com.user.management.enums.AppRole;
 import com.user.management.models.Role;
 import com.user.management.models.User;
@@ -7,9 +8,11 @@ import com.user.management.repositories.RoleRepository;
 import com.user.management.repositories.UserRepository;
 import com.user.management.security.jwt.AuthEntryPointJwt;
 import com.user.management.security.jwt.AuthTokenFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,6 +26,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
 
+import static com.user.management.util.UserManagementUtils.makeUser;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -40,6 +44,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
+
+    @Autowired
+    @Lazy
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     /**
      * Constructor injection for AuthEntryPointJwt to handle unauthorized access attempts.
@@ -80,6 +88,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/public/**").permitAll() // Public auth endpoints are accessible to all
                         .requestMatchers("/oauth2/**").permitAll() // OAuth2 endpoints are accessible to all
                         .anyRequest().authenticated()) // All other requests require authentication
+                .oauth2Login(oauth->{
+                    oauth.successHandler(oAuth2LoginSuccessHandler);
+                })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler)) // Handle unauthorized access attempts
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class) // Add JWT token filter
@@ -151,13 +162,7 @@ public class SecurityConfig {
             if (!userRepository.existsByUsername("admin")) { // Create default admin if not exists
                 User admin = new User("admin", "admin@example.com",
                         passwordEncoder.encode("adminPass"));
-                admin.setAccountNonLocked(true);
-                admin.setAccountNonExpired(true);
-                admin.setCredentialsNonExpired(true);
-                admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                admin.setTwoFactorEnabled(false);
+                makeUser(admin);
                 admin.setSignUpMethod("email");
                 admin.setRole(adminRole);
                 userRepository.save(admin);

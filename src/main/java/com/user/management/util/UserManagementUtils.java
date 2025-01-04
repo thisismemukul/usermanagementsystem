@@ -5,6 +5,7 @@ import com.user.management.exceptions.DefaultBaseError;
 import com.user.management.exceptions.IBaseError;
 import com.user.management.exceptions.UserMgmtException;
 import com.user.management.exceptions.ValidationException;
+import com.user.management.models.User;
 import com.user.management.response.ApiResponse;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDate;
 import java.util.function.Supplier;
 
 import static com.user.management.enums.ResponseCode.CONTENT_IS_EMPTY;
@@ -171,6 +173,16 @@ public class UserManagementUtils {
         if (ObjectUtils.isEmpty(userDetails.getUsername())) {
             throw createUserMgmtException(USER_DETAILS_MISSING);
         }
+    }
+
+    public static void makeUser(User newUser) {
+        newUser.setAccountNonLocked(true);
+        newUser.setAccountNonExpired(true);
+        newUser.setCredentialsNonExpired(true);
+        newUser.setEnabled(true);
+        newUser.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+        newUser.setAccountExpiryDate(LocalDate.now().plusYears(1));
+        newUser.setTwoFactorEnabled(false);
     }
 
 }
