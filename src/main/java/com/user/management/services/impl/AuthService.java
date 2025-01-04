@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.user.management.constants.Constants.ADMIN;
+import static com.user.management.constants.Constants.EMAIL;
 import static com.user.management.enums.ResponseCode.*;
 import static com.user.management.util.UserManagementUtils.*;
 
@@ -171,7 +172,7 @@ public class AuthService implements IAuthService {
                 }
 
                 makeUser(user);
-                user.setSignUpMethod("email");
+                user.setSignUpMethod(EMAIL);
             }
             user.setRole(role);
             User save = userRepository.save(user);

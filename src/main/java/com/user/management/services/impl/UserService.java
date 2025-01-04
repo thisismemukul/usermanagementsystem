@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.user.management.constants.Constants.EMAIL;
 import static com.user.management.constants.RESTUriConstants.RESET_PASSWORD;
 import static com.user.management.enums.ResponseCode.*;
 import static com.user.management.util.UserManagementUtils.createUserMgmtException;
@@ -402,12 +403,21 @@ public class UserService implements IUserService {
 
     @Override
     public void registerUser(User newUser) {
-        if (!ObjectUtils.isEmpty(newUser.getSignUpMethod())){
-            if (!"email".equalsIgnoreCase(newUser.getSignUpMethod())){
+        if (ObjectUtils.isEmpty(newUser)) {
+            throw createUserMgmtException(USER_NOT_FOUND);
+        }
+
+        if (!ObjectUtils.isEmpty(newUser.getSignUpMethod())) {
+            if (!EMAIL.equalsIgnoreCase(newUser.getSignUpMethod())) {
                 newUser.setPassword(newUser.getSignUpMethod().concat(newUser.getUsername()));
             }
         }
-        userRepository.save(newUser);
+        try {
+            userRepository.save(newUser);
+        } catch (Exception e) {
+            log.error("Error: while registering user {}", e.getMessage(), e);
+            throw new ServiceException("An unexpected error occurred while resetting the password. Please try again.");
+        }
     }
 
 }

@@ -6,9 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,14 +14,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static com.user.management.constants.Constants.EMAIL;
+
 @Entity
 @Data
 @NoArgsConstructor
-
+@Builder
+@AllArgsConstructor
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = EMAIL)
         })
 public class User extends BaseEntity {
 

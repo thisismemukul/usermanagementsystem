@@ -26,6 +26,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
 
+import static com.user.management.constants.Constants.EMAIL;
 import static com.user.management.util.UserManagementUtils.makeUser;
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -154,7 +155,7 @@ public class SecurityConfig {
                 user1.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
                 user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 user1.setTwoFactorEnabled(false);
-                user1.setSignUpMethod("email");
+                user1.setSignUpMethod(EMAIL);
                 user1.setRole(userRole);
                 userRepository.save(user1);
             }
@@ -163,7 +164,7 @@ public class SecurityConfig {
                 User admin = new User("admin", "admin@example.com",
                         passwordEncoder.encode("adminPass"));
                 makeUser(admin);
-                admin.setSignUpMethod("email");
+                admin.setSignUpMethod(EMAIL);
                 admin.setRole(adminRole);
                 userRepository.save(admin);
             }
