@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.user.management.constants.Constants.*;
 import static com.user.management.enums.ResponseCode.ROLE_NOT_FOUND;
+import static com.user.management.enums.ResponseCode.USER_NOT_FOUND;
 import static com.user.management.util.UserManagementUtils.createUserMgmtException;
 
 @Component
@@ -117,6 +118,16 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     }
 
     private String generateJwtToken(Authentication authentication, String username, String email) {
+        DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
+                .collect(Collectors.toList()));
+
+        User user = userService.findByEmail(email).orElseThrow(
+                () -> createUserMgmtException(USER_NOT_FOUND)
+        );
+
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getRoleName().name()));
 
         UserDetailsImpl userDetails = new UserDetailsImpl(
                 null,
@@ -124,9 +135,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                 email,
                 null,
                 false,
-                authentication.getAuthorities().stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
-                        .collect(Collectors.toList())
+                authorities
         );
         return jwtUtils.generateTokenFromUsername(userDetails);
     }
@@ -134,9 +143,9 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     private void redirectWithToken(HttpServletResponse response, String jwtToken) throws IOException {
         String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
                 .queryParam("token", jwtToken)
-                .build()
-                .toUriString();
-        setDefaultTargetUrl(targetUrl);
-        getRedirectStrategy().sendRedirect(null, response, targetUrl);
+                .build().toUriString();
+//        setDefaultTargetUrl(targetUrl);
+//        getRedirectStrategy().sendRedirect(null, response, targetUrl);
+        response.sendRedirect(targetUrl);
     }
 }
