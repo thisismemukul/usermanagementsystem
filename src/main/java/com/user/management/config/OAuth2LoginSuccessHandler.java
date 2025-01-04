@@ -46,6 +46,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     @Value("${frontend.url}")
     private String frontendUrl;
 
+    String idAttributeKey;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
         try {
@@ -77,8 +79,10 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     private String resolveUsername(OAuth2AuthenticationToken authToken, Map<String, Object> attributes) {
         String clientId = authToken.getAuthorizedClientRegistrationId();
         if (GITHUB.equals(clientId)) {
+            idAttributeKey = "id";
             return attributes.getOrDefault("login", "").toString();
         } else if (GOOGLE.equals(clientId)) {
+            idAttributeKey = "sub";
             String email = attributes.getOrDefault(EMAIL, "").toString();
             return email.split("@")[0];
         }
@@ -112,7 +116,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         DefaultOAuth2User oauthUser = new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority(user.getRole().getRoleName().name())),
                 attributes,
-                "id"
+                idAttributeKey
         );
         return new OAuth2AuthenticationToken(oauthUser, oauthUser.getAuthorities(), clientId);
     }
