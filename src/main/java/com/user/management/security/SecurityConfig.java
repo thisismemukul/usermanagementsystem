@@ -46,17 +46,17 @@ public class SecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
 
-    @Autowired
     @Lazy
-    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     /**
      * Constructor injection for AuthEntryPointJwt to handle unauthorized access attempts.
      *
      * @param unauthorizedHandler the entry point that handles authentication errors
      */
-    public SecurityConfig(AuthEntryPointJwt unauthorizedHandler) {
+    public SecurityConfig(AuthEntryPointJwt unauthorizedHandler, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.unauthorizedHandler = unauthorizedHandler;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     /**
