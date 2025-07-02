@@ -18,6 +18,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -50,16 +51,13 @@ public class UserService implements IUserService {
 
     private final EmailService emailService;
 
-    private final PasswordEncoder passwordEncoder;
-
     private final ITotpService totpService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordResetRepository passwordResetRepository, EmailService emailService, PasswordEncoder passwordEncoder, ITotpService totpService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordResetRepository passwordResetRepository, EmailService emailService, ITotpService totpService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordResetRepository = passwordResetRepository;
         this.emailService = emailService;
-        this.passwordEncoder = passwordEncoder;
         this.totpService = totpService;
     }
 
