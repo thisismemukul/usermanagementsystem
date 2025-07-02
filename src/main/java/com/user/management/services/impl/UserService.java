@@ -10,8 +10,10 @@ import com.user.management.repositories.PasswordResetRepository;
 import com.user.management.repositories.RoleRepository;
 import com.user.management.repositories.UserRepository;
 import com.user.management.request.dto.UserDTO;
+import com.user.management.services.ITotpService;
 import com.user.management.services.IUserService;
 import com.user.management.util.EmailService;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
@@ -50,12 +52,15 @@ public class UserService implements IUserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordResetRepository passwordResetRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    private final ITotpService totpService;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordResetRepository passwordResetRepository, EmailService emailService, PasswordEncoder passwordEncoder, ITotpService totpService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordResetRepository = passwordResetRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.totpService = totpService;
     }
 
     /**
@@ -418,6 +423,39 @@ public class UserService implements IUserService {
             log.error("Error: while registering user {}", e.getMessage(), e);
             throw new ServiceException("An unexpected error occurred while resetting the password. Please try again.");
         }
+    }
+
+    @Override
+    public GoogleAuthenticatorKey generate2FASecret(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> createUserMgmtException(USERNAME_NOT_FOUND));
+
+        GoogleAuthenticatorKey googleAuthenticatorKey = totpService.generateSecretKey();
+        user.setTwoFactorSecret(googleAuthenticatorKey.getKey());
+        userRepository.save(user);
+        return googleAuthenticatorKey;
+    }
+
+    @Override
+    public boolean validate2FACode(Long userId, int code){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> createUserMgmtException(USERNAME_NOT_FOUND));
+
+      return totpService.verifyCode(user.getTwoFactorSecret(), code);
+    }
+
+    @Override
+    public void enable2FA(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> createUserMgmtException(USERNAME_NOT_FOUND));
+        user.setTwoFactorEnabled(true);
+    }
+
+    @Override
+    public void disable2FA(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> createUserMgmtException(USERNAME_NOT_FOUND));
+        user.setTwoFactorEnabled(false);
     }
 
 }

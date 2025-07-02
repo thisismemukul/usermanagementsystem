@@ -3,6 +3,7 @@ package com.user.management.services;
 import com.user.management.models.Role;
 import com.user.management.models.User;
 import com.user.management.request.dto.UserDTO;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,4 +36,12 @@ public interface IUserService {
     void resetPassword(String token, String newPassword);
 
     void registerUser(User newUser);
+
+    GoogleAuthenticatorKey generate2FASecret(Long userId);
+
+    boolean validate2FACode(Long userId, int code);
+
+    void enable2FA(Long userId);
+
+    void disable2FA(Long userId);
 }

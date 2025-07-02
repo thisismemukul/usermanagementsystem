@@ -53,6 +53,9 @@ public class Constants {
     public static final String USER_NOT_FOUND_MESSAGE = "User not found.";
     public static final String USER_NOT_FOUND_USER_MESSAGE = "Whoops! That user is playing hide-and-seek. Maybe it’s gone incognito? 😎🔍";
 
+    public static final String TWO_FA_SECRET_EMPTY_MESSAGE = "Secret not found.";
+    public static final String TWO_FA_SECRET_EMPTY_USER_MESSAGE = "Whoops! Looks like you lost your secret key. Let’s try that again! 🚀";
+
     //500
     public static final String NULL_POINTER_EXCEPTION_MESSAGE = "A null pointer exception occurred: ";
     public static final String NULL_POINTER_EXCEPTION_USER_MESSAGE = "Yikes! Something’s missing! 😱 The bugs must be having a party. 🐛🍕";
