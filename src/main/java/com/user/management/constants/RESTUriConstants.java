@@ -30,6 +30,12 @@ public class RESTUriConstants {
     public static final String FORGOT_PASSWORD = "/forgot-password";
     public static final String RESET_PASSWORD = "/reset-password";
 
+    public static final String ENABLE_TFA = "/enable-2fa";
+    public static final String DISABLE_TFA = "/disable-2fa";
+    public static final String VERIFY_TFA = "/verify-2fa";
+    public static final String TFA_STATUS = "/2fa-status";
+    public static final String VERIFY_TFA_LOGIN = "/verify-2fa-login";
+
     public static final String STATUS = "/status";
 
 }
